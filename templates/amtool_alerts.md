@@ -1,28 +1,18 @@
-{{ count }} Total Alerts
+For **active** {{ criteria.active }}, **silenced** {{ criteria.silenced }}, **inhibited** {{ criteria.inhibited }}, **unprocessed** {{ criteria.unprocessed }}, **filter** {{ criteria.filter }}, **receiver** {{ criteria.receiver }} 
 
-{{ criteria.active }} {{ criteria.silenced }} {{ criteria.inhibited }} {{ criteria.unprocessed }} {{ criteria.filter }} {{ criteria.receiver }} 
-
+Found **{{ count }}** alerts.
 {% for alert in alerts %}
+**Alert Firing:**
+{{alert.annotations.title}};{{alert.annotations.summary}}; **{{alert.annotations.value}}**
 
-{{ alert.status.inhibitedBy }}
-{{ alert.status.silencedBy }}
-{{ alert.status.state }}
+{{alert.annotations.description}} 
 
-{{ alert.receivers }}
+**Details:** 
+{% for label_name, label_value in alert.labels.items() %} **{{label_name}}:** `{{label_value}}` {% endfor %}
 
-{{ alert.startsAt }}
-{{ alert.updatedAt }}
-{{ alert.endsAt }}
-
-{% for label_name, label_value in alert.labels.iteritems() %}
-{{label_name}}:{{label_value}}
-{% endfor %}
-
-{% for ann_name, ann_value in alert.annotations.iteritems() %}
-{{ann_name}}:{{ann_value}}
-{% endfor %}
-
-  
+> State `{{ alert.status.state }}`, inhibited by `{{ alert.status.inhibitedBy }}`, silenced by {{ alert.status.silencedBy }}
+> Started `{{ alert.startsAt }}` , updated  `{{ alert.updatedAt }}`
+****
 {% endfor %}
 
 

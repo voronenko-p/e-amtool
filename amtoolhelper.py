@@ -24,7 +24,7 @@ class AmtoolHelper(object):
         "cluster": {
           "name": api_response.cluster.name,
           "status": api_response.cluster.status,
-          "peers": api_response.cluster.peers
+#          "peers": api_response.cluster.peers
         },
         "config": api_response.config.original,
         "uptime": api_response.uptime,

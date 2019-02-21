@@ -1,3 +1,3 @@
-STATUS
+Cluster *{{ cluster.name }}* {{ cluster.status }}, since _{{ uptime }}_
 
-{{ response | tojson }}
+{{ version.version }} ({{ version.revision }} {{ version.branch }} {{ version.build_date }})
