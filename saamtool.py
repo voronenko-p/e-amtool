@@ -13,14 +13,15 @@ def get_ts():
 class SaAmtool(BotPlugin):
 
     def get_configuration_template(self):
-        return {'server_address': 'https://host:9093/api/v1'}
+        return {'server_address': 'https://host:9093/api/v2'}
 
     @botcmd(template='amtool_status')
     def amtool_status(self, mess, args):
-        """List of alerts"""
+        """Returns status of the instance"""
+        self.log.info("Current config {0}".format(self.config))
+        self.log.info("Alertmanager @ {0}".format(self.config['server_address']))
         helper = AmtoolHelper(
-            alertmanager_address=self.config['server_address'],
-            alertmanager_token=self.config['token'])
-        result = helper.get_alerts()
-        return {'alerts': result}
+            alertmanager_address=self.config['server_address'])
+        result = helper.get_status()
+        return {"response": result}
 
