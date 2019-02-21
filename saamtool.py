@@ -19,9 +19,17 @@ class SaAmtool(BotPlugin):
     def amtool_status(self, mess, args):
         """Returns status of the instance"""
         self.log.info("Current config {0}".format(self.config))
-        self.log.info("Alertmanager @ {0}".format(self.config['server_address']))
+        self.log.info(
+            "Alertmanager @ {0}".format(self.config['server_address']))
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
         result = helper.get_status()
         return {"response": result}
 
+    @botcmd(template='amtool_alerts')
+    def amtool_alerts(self, mess, args):
+        """Returns status of the instance"""
+        helper = AmtoolHelper(
+            alertmanager_address=self.config['server_address'])
+        result = helper.get_alerts()
+        return result
