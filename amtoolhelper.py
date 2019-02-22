@@ -40,7 +40,8 @@ class AmtoolHelper(object):
             }
         except ApiException as e:
             print("Exception when calling GeneralApi->get_status: %s\n" % e)
-        return {}
+            raise
+
 
     #        active = true # bool | Show active alerts (optional) (default to true)
     #        silenced = true # bool | Show silenced alerts (optional) (default to true)
@@ -73,7 +74,7 @@ class AmtoolHelper(object):
         except ApiException as e:
             print("Exception when cal"
                   "ling AlertApi->get_alerts: {}\n".format(e))
-        return {}
+            raise
 
     def get_silences(self, filter=[]):
         try:
@@ -81,6 +82,7 @@ class AmtoolHelper(object):
             return api_response
         except ApiException as e:
             print("Exception when calling silence_api->get_silences: %s\n" % e)
+            raise
 
     def get_silence(self, silence_id):
         try:
@@ -88,6 +90,7 @@ class AmtoolHelper(object):
             return api_response
         except ApiException as e:
             print("Exception when calling silence_api->get_silence: %s\n" % e)
+            raise
 
     def post_silence(self, matchers=None, starts_at=None, ends_at=None, created_by=None, comment=None):
         try:
@@ -102,6 +105,7 @@ class AmtoolHelper(object):
             return api_response
         except ApiException as e:
             print("Exception when calling silence_api->post_silence: %s\n" % e)
+            raise
 
     def get_receivers(self):
         try:
@@ -109,3 +113,4 @@ class AmtoolHelper(object):
             return api_response
         except ApiException as e:
             print("Exception when calling receiver_api->get_receivers: %s\n" % e)
+            raise
