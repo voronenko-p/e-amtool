@@ -34,10 +34,40 @@ class SaAmtool(BotPlugin):
         result = helper.get_alerts()
         return result
 
+    @botcmd(template='amtool_silences')
+    def amtool_silences(self, mess, args):
+        """Returns current silences list"""
+        helper = AmtoolHelper(
+            alertmanager_address=self.config['server_address'])
+        result = helper.get_silences()
+        return result
+
+    @botcmd(template='amtool_recievers')
+    def amtool_silences(self, mess, args):
+        """Returns current receivers list"""
+        helper = AmtoolHelper(
+            alertmanager_address=self.config['server_address'])
+        result = helper.get_receivers()
+        return result
+
     @botcmd(template='amtool_alerts_brief')
     def amtool_brief(self, mess, args):
         """Returns brief on alerts"""
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
         result = helper.get_alerts()
+        return result
+
+    @botcmd(template='amtool_silence_add')
+    def amtool_post_silence(self, mess, args):
+        """Returns brief on alerts"""
+        helper = AmtoolHelper(
+            alertmanager_address=self.config['server_address'])
+        result = helper.post_silence(
+            matchers=None,
+            starts_at=None,
+            ends_at=None,
+            created_by=None,
+            comment=None
+        )
         return result
