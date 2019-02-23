@@ -40,7 +40,7 @@ class SaAmtool(BotPlugin):
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
         result = helper.get_silences()
-        return result
+        return {"silences": result}
 
     @arg_botcmd('silence_id', type=str,template='amtool_silence_details')
     def amtool_silence(self, mess, silence_id):
@@ -66,10 +66,10 @@ class SaAmtool(BotPlugin):
         result = helper.get_alerts()
         return result
 
-    @arg_botcmd('weeks', type=int, default=0)
-    @arg_botcmd('days', type=int, default=0)
-    @arg_botcmd('hours', type=int, default=0)
-    @arg_botcmd('minutes', type=int, default=0)
+    @arg_botcmd('--weeks', type=int, default=0)
+    @arg_botcmd('--days', type=int, default=0)
+    @arg_botcmd('--hours', type=int, default=0)
+    @arg_botcmd('--minutes', type=int, default=0)
     @arg_botcmd('fingerprint', type=str,template='amtool_silence_add')
     def amtool_suppress(self, mess, fingerprint, weeks, days, hours, minutes):
         """Puts exact suppress match on alert"""
