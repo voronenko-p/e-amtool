@@ -8,3 +8,7 @@
 {% for name, value in alert.annotations.items() %} `{{name}}:` _{{value}}_ {% endfor %}
 ****
 {% endfor %}
+
+Suppress:
+
+_!amtool suppress {{ alert.fingerprint }}_ 

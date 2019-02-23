@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from errbot import arg_botcmd, botcmd, BotPlugin
 from amtoolhelper import AmtoolHelper
 
@@ -42,8 +42,16 @@ class SaAmtool(BotPlugin):
         result = helper.get_silences()
         return result
 
+    @arg_botcmd('silence_id', type=str,template='amtool_silence_details')
+    def amtool_silence(self, mess, silence_id):
+        """Returns specific silence details"""
+        helper = AmtoolHelper(
+            alertmanager_address=self.config['server_address'])
+        result = helper.get_silence()
+        return result
+
     @botcmd(template='amtool_recievers')
-    def amtool_silences(self, mess, args):
+    def amtool_receivers(self, mess, args):
         """Returns current receivers list"""
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
@@ -58,16 +66,27 @@ class SaAmtool(BotPlugin):
         result = helper.get_alerts()
         return result
 
-    @botcmd(template='amtool_silence_add')
-    def amtool_post_silence(self, mess, args):
-        """Returns brief on alerts"""
+    @arg_botcmd('weeks', type=int, default=0)
+    @arg_botcmd('days', type=int, default=0)
+    @arg_botcmd('hours', type=int, default=0)
+    @arg_botcmd('minutes', type=int, default=0)
+    @arg_botcmd('fingerprint', type=str,template='amtool_silence_add')
+    def amtool_suppress(self, mess, fingerprint, weeks, days, hours, minutes):
+        """Puts exact suppress match on alert"""
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
+
+        start_period = datetime.now()
+        end_period = start_period + timedelta(minutes=minutes, hours=hours, days=days, weeks=weeks)
+
+        alert = helper.get_alert(fingerprint)
+        matchers = helper.get_matchers_by_alert(alert)
+
         result = helper.post_silence(
-            matchers=None,
-            starts_at=None,
-            ends_at=None,
-            created_by=None,
-            comment=None
+            matchers=matchers,
+            starts_at=start_period,
+            ends_at=end_period,
+            created_by="errbot",
+            comment="errbot"
         )
         return result

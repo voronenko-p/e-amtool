@@ -42,7 +42,6 @@ class AmtoolHelper(object):
             print("Exception when calling GeneralApi->get_status: %s\n" % e)
             raise
 
-
     #        active = true # bool | Show active alerts (optional) (default to true)
     #        silenced = true # bool | Show silenced alerts (optional) (default to true)
     #        inhibited = true # bool | Show inhibited alerts (optional) (default to true)
@@ -76,6 +75,19 @@ class AmtoolHelper(object):
                   "ling AlertApi->get_alerts: {}\n".format(e))
             raise
 
+    def get_alert(self, fingerprint):
+        alerts = self.alerts_api.get_alerts(active=True,
+                                            silenced=True,
+                                            inhibited=True,
+                                            unprocessed=True,
+                                            filter=[],
+                                            receiver=""
+                                            )
+        for alert in alerts:
+            if alert["fingerprint"] == fingerprint:
+                return alert
+        return None
+
     def get_silences(self, filter=[]):
         try:
             api_response = self.silence_api.get_silences(filter=filter)
@@ -92,7 +104,8 @@ class AmtoolHelper(object):
             print("Exception when calling silence_api->get_silence: %s\n" % e)
             raise
 
-    def post_silence(self, matchers=None, starts_at=None, ends_at=None, created_by=None, comment=None):
+    def post_silence(self, matchers=None, starts_at=None, ends_at=None,
+        created_by=None, comment=None):
         try:
             silence = PostableSilence(
                 matchers=matchers,
@@ -112,5 +125,23 @@ class AmtoolHelper(object):
             api_response = self.receiver_api.get_receivers()
             return api_response
         except ApiException as e:
-            print("Exception when calling receiver_api->get_receivers: %s\n" % e)
+            print(
+                "Exception when calling receiver_api->get_receivers: %s\n" % e)
             raise
+
+    @staticmethod
+    def get_matchers_by_alert(alert, ignore_terms=["severity", "monitor"], include_terms=None):
+        matchers = []
+        for name, value in alert["labels"].items():
+            if name in ignore_terms:
+                continue
+            if include_terms and not name in include_terms:
+                continue
+            matchers.append(
+                {
+                    "IsRegex": False,
+                    "name": name,
+                    "value": value
+                }
+            )
+        return matchers

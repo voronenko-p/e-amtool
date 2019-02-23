@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import pytz
 from unittest import TestCase
 from amtoolhelper import AmtoolHelper
 
@@ -15,6 +16,11 @@ class TestAmtoolHelper(TestCase):
         alerts = amtoolhelper.get_alerts()
         self.assertIsNotNone(alerts)
 
+    def test_get_alert(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        alert = amtoolhelper.get_alert('af2442fa7f7ee655')
+        self.assertIsNotNone(alert)
+
     def test_get_silences(self):
         amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
         silences = amtoolhelper.get_silences()
@@ -27,10 +33,16 @@ class TestAmtoolHelper(TestCase):
 
     def test_post_silence(self):
         amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        start_period = datetime.now(pytz.timezone('Europe/Kiev'))
+        end_period = start_period + timedelta(minutes=1)
+
+        alert = amtoolhelper.get_alert('af2442fa7f7ee655')
+        matchers = amtoolhelper.get_matchers_by_alert(alert)
+
         silence = amtoolhelper.post_silence(
-            matchers=[{ "instance": "i-028ae8bf36be2e188"}],
-            starts_at=datetime.now(),
-            ends_at=datetime.now() + timedelta(hours=1),
+            matchers=matchers,
+            starts_at=start_period.isoformat(),
+            ends_at=end_period.isoformat(),
             created_by="Someone",
             comment="test silence"
         )
