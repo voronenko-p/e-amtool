@@ -31,13 +31,30 @@ class TestAmtoolHelper(TestCase):
         silence = amtoolhelper.get_silence(silence_id="bb788860-35d2-48e7-9062-f082c77d202d")
         self.assertIsNotNone(silence)
 
-    def test_post_silence(self):
+    def test_post_silence_suppress(self):
         amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
         start_period = datetime.now(pytz.timezone('Europe/Kiev'))
         end_period = start_period + timedelta(minutes=1)
 
         alert = amtoolhelper.get_alert('af2442fa7f7ee655')
         matchers = amtoolhelper.get_matchers_by_alert(alert)
+
+        silence = amtoolhelper.post_silence(
+            matchers=matchers,
+            starts_at=start_period.isoformat(),
+            ends_at=end_period.isoformat(),
+            created_by="Someone",
+            comment="test silence"
+        )
+        self.assertIsNotNone(silence)
+
+    def test_post_silence_selective(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        start_period = datetime.now(pytz.timezone('Europe/Kiev'))
+        end_period = start_period + timedelta(minutes=1)
+
+        alert = amtoolhelper.get_alert('af2442fa7f7ee655')
+        matchers = amtoolhelper.get_matchers_by_terms(terms=["~StrategyDown2", "instance=i-049a6b9bbbb6fb76b"])
 
         silence = amtoolhelper.post_silence(
             matchers=matchers,

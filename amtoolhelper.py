@@ -1,11 +1,8 @@
 from __future__ import print_function
-
-import datetime
-import time
+import re
 import swagger_client
 from swagger_client import Configuration, ApiClient, api, PostableSilence
 from swagger_client.rest import ApiException
-from pprint import pprint
 
 
 class AmtoolHelper(object):
@@ -109,7 +106,8 @@ class AmtoolHelper(object):
             api_response = self.silence_api.delete_silence(silence_id)
             return api_response
         except ApiException as e:
-            print("Exception when calling silence_api->delete_silence(: %s\n" % e)
+            print(
+                "Exception when calling silence_api->delete_silence(: %s\n" % e)
             raise
 
     def post_silence(self, matchers=None, starts_at=None, ends_at=None,
@@ -138,7 +136,8 @@ class AmtoolHelper(object):
             raise
 
     @staticmethod
-    def get_matchers_by_alert(alert, ignore_terms=["severity", "monitor"], include_terms=None):
+    def get_matchers_by_alert(alert, ignore_terms=["severity", "monitor"],
+        include_terms=None):
         matchers = []
         for name, value in alert["labels"].items():
             if name in ignore_terms:
@@ -148,6 +147,37 @@ class AmtoolHelper(object):
             matchers.append(
                 {
                     "IsRegex": False,
+                    "name": name,
+                    "value": value
+                }
+            )
+        return matchers
+
+    @staticmethod
+    def get_matchers_by_terms(terms=[], ignore_terms=[], include_terms=None):
+        matchers = []
+        for term in terms:
+            match_regex = False
+            elements = term.split("=")
+            if len(elements) == 1:
+                value = elements[0]
+                name = "alertname"
+            else:
+                name = elements[0]
+                value = elements[1]
+                if name in ignore_terms:
+                    continue
+                if include_terms and not name in include_terms:
+                    continue
+            if value.startswith("~") or "." in value or "*" in value:
+                try:
+                    re.compile(value)
+                    match_regex = True
+                except re.error:
+                    match_regex = False
+            matchers.append(
+                {
+                    "IsRegex": match_regex,
                     "name": name,
                     "value": value
                 }

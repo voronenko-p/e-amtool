@@ -1,9 +1,8 @@
-import os
-import re
 from datetime import datetime, timedelta
 from errbot import arg_botcmd, botcmd, BotPlugin
 from amtoolhelper import AmtoolHelper
-import parsedatetime as pdt# $ pip install parsedatetime
+import parsedatetime as pdt  # $ pip install parsedatetime
+
 
 def get_ts():
     now = datetime.now()
@@ -45,7 +44,7 @@ class SaAmtool(BotPlugin):
         result = helper.get_silences()
         return {"silences": result}
 
-    @arg_botcmd('silence_id', type=str,template='amtool_silence_details')
+    @arg_botcmd('silence_id', type=str, template='amtool_silence_details')
     def amtool_silence(self, mess, silence_id):
         """Returns specific silence details"""
         helper = AmtoolHelper(
@@ -73,14 +72,15 @@ class SaAmtool(BotPlugin):
     @arg_botcmd('--days', type=int, default=0)
     @arg_botcmd('--hours', type=int, default=0)
     @arg_botcmd('--minutes', type=int, default=0)
-    @arg_botcmd('fingerprint', type=str,template='amtool_silence_add')
+    @arg_botcmd('fingerprint', type=str, template='amtool_silence_add')
     def amtool_suppress(self, mess, fingerprint, weeks, days, hours, minutes):
         """Puts exact suppress match on alert"""
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
 
         start_period = datetime.now().utcnow()
-        end_period = start_period + timedelta(minutes=minutes, hours=hours, days=days, weeks=weeks)
+        end_period = start_period + timedelta(minutes=minutes, hours=hours,
+                                              days=days, weeks=weeks)
 
         alert = helper.get_alert(fingerprint)
         matchers = helper.get_matchers_by_alert(alert)
@@ -101,8 +101,10 @@ class SaAmtool(BotPlugin):
     @arg_botcmd('--active', dest='active', type=bool, default=True)
     @arg_botcmd('--unprocessed', dest='unprocessed', type=bool, default=True)
     @arg_botcmd('--receiver', dest='receiver', type=str, default="")
-    @arg_botcmd('matchers', type=str, template='amtool_alert_query')
-    def amtool_alert_query(self, inhibited, silenced, active, unprocessed, receiver, matchers):
+    @arg_botcmd('matchers', type=str, metavar='matchers', nargs='+',
+                template='amtool_alert_query')
+    def amtool_alert_query(self, mess, inhibited=False, silenced=False,
+        active=False, unprocessed=False, receiver="", matchers=[]):
         """
           Queries alert in amtool command style
           --inhibited          Show inhibited alerts
@@ -114,15 +116,21 @@ class SaAmtool(BotPlugin):
         Args:
           [<matcher-groups>]  Query filter
         """
-
+        if not (inhibited or silenced or active or unprocessed):
+            inhibited = True
+            silenced = True
+            active = True
+            unprocessed = True
+        self.log.info("matchers {0}".format(matchers))
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
+        filter = helper.get_matchers_by_terms(matchers)
         result = helper.get_alerts(
             active=active,
             silenced=silenced,
             inhibited=inhibited,
             unprocessed=unprocessed,
-            filter=[],
+            filter=filter,
             receiver=receiver
         )
         return result
@@ -132,8 +140,10 @@ class SaAmtool(BotPlugin):
     @arg_botcmd('--start', type=str, default=None)
     @arg_botcmd('--end', type=str, default=None)
     @arg_botcmd('--comment', type=str, default=None)
-    @arg_botcmd('matchers', type=str,template='amtool_silence_add')
-    def amtool_silence_add(self, mess, author, duration, start, end, comment, matchers):
+    @arg_botcmd('matchers', type=str, metavar='matchers', nargs='+',
+                template='amtool_silence_add')
+    def amtool_silence_add(self, mess, author, duration, start, end, comment,
+        matchers):
         """
             usage: !amtool silence add [<flags>] [<matcher-groups>...]
 
@@ -178,11 +188,12 @@ class SaAmtool(BotPlugin):
             end_period = datetime.strptime(end, '%Y-%m-%dT%H:%M:%SZ')
         else:
             cal = pdt.Calendar()
-            diff = cal.parseDT(duration, sourceTime=datetime.min)[0] - datetime.min
+            diff = cal.parseDT(duration, sourceTime=datetime.min)[
+                       0] - datetime.min
             end_period = start_period + diff
-
+        parsed_matchers = helper.get_matchers_by_terms(matchers)
         result = helper.post_silence(
-            matchers=matchers,
+            matchers=parsed_matchers,
             starts_at=start_period.isoformat(),
             ends_at=end_period.isoformat(),
             created_by=author,
@@ -206,8 +217,10 @@ class SaAmtool(BotPlugin):
         return result
 
     @arg_botcmd('--expired', type=bool, default=None)
-    @arg_botcmd('--within', type=str, default=None, template="amtool_silence_query")
-    def amtool_silences(self, mess, args):
+    @arg_botcmd('--within', type=str, default=None)
+    @arg_botcmd('matchers', type=str, metavar='matchers', nargs='+',
+                template="amtool_silence_query")
+    def amtool_silences(self, mess, expired=None, within=None, matchers=[]):
         """
           Amtool has a simplified prometheus query syntax The non-option section of arguments constructs a list of "Matcher Groups"
           that will be used to filter your query. The following examples will attempt to show this behaviour in action:
@@ -249,5 +262,6 @@ returns all silences that expired within the preceeding 2 hours.
         """
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
-        result = helper.get_silences()
+        filters = helper.get_matchers_by_terms(matchers)
+        result = helper.get_silences(filter=filters)
         return {"silences": result}
