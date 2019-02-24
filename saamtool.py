@@ -124,7 +124,7 @@ class SaAmtool(BotPlugin):
         self.log.info("matchers {0}".format(matchers))
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
-        filter = helper.get_matchers_by_terms(matchers)
+        filter = helper.get_filters_by_terms(matchers)
         result = helper.get_alerts(
             active=active,
             silenced=silenced,

@@ -183,3 +183,17 @@ class AmtoolHelper(object):
                 }
             )
         return matchers
+
+    @staticmethod
+    def get_filters_by_terms(terms=[]):
+        matchers = []
+        for term in terms:
+            elements = term.split("=")
+            if len(elements) == 1:
+                value = elements[0]
+                name = "alertname"
+            else:
+                name = elements[0]
+                value = elements[1]
+            matchers.append((name, value))
+        return matchers
