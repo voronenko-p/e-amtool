@@ -36,6 +36,21 @@ class SaAmtool(BotPlugin):
         result = helper.get_alerts()
         return result
 
+    @arg_botcmd('fingerprint', type=str)
+    def amtool_alert_describe(self, mess, fingerprint):
+        """Returns specific silence details"""
+        helper = AmtoolHelper(
+            alertmanager_address=self.config['server_address'])
+        result = helper.get_alert(fingerprint)
+        self.send_card(title=result["annotations"]["title"],
+                       body=result["annotations"]["description"],
+                       #                       thumbnail='https://raw.githubusercontent.com/errbotio/errbot/master/docs/_static/errbot.png',
+                       #                       image='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                       link=result["generatorURL"],
+                       fields=result["labels"].items(),
+                       color='blue',
+                       in_reply_to=mess)
+
     @botcmd(template='amtool_silences')
     def amtool_silences(self, mess, args):
         """Returns current silences list"""
@@ -45,11 +60,11 @@ class SaAmtool(BotPlugin):
         return {"silences": result}
 
     @arg_botcmd('silence_id', type=str, template='amtool_silence_details')
-    def amtool_silence(self, mess, silence_id):
+    def amtool_silence_describe(self, mess, silence_id):
         """Returns specific silence details"""
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
-        result = helper.get_silence()
+        result = helper.get_silence(silence_id)
         return result
 
     @botcmd(template='amtool_recievers')

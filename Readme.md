@@ -33,6 +33,12 @@ Once everything is setup, you can connect your bot to your Slack channel followi
 
 Bot commands
 ------------
+## Endpoint status !amtool status
+
+With `!amtool status` you can check, if alert manager responds
+
+![!amtool status](docs/amtool_status.jpg "!amtool status")
+
 
 ## Quering alerts !amtool alert query
 
@@ -57,15 +63,15 @@ use the severity=critical matcher in the alert query command:
 ```
 !amtool alert query severity=critical
 ```
-L
-ike before, the output contains the alert's name, the time of alert's first occurrence and the alert's summary.
-
+Like before, the output contains the alert's name, the time of alert's first occurrence and the alert's summary.
 
 Output
 ```
 Alertname     Starts At                Summary
 EndpointDown  2018-04-03 08:48:47 UTC  Endpoint http://localhost:8080 down
 ```
+
+![!amtool alert query](docs/amtool_alert_query.jpg "!amtool alert query")
 
 You can use regular expressions to match labels with the =~ operator. 
 For example, to list all alerts for http://localhost endpoints not depending on the port, 
@@ -74,6 +80,12 @@ you can use the instance=~http://localhost.* matcher:
 ```
 !amtool alert query instance=~http://localhost.*
 ```
+
+## Geting alert details by fingerprint !amtool alert describe <fingerprint>
+
+Gets more detailed info about alert from prometheus
+
+![!amtool alert describe](docs/amtool_alert_describe.jpg "!amtool alert query")
 
 ## Muting alerts with !amtool silence add
 

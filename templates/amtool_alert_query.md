@@ -1,4 +1,4 @@
-Alertname     Starts At                Summary
+Fingerprint               Alertname                                Starts At                Summary
 {% for alert in alerts %}
-{{alert.annotations.title}} {{alert.createdAt}}  {{alert.annotations.summary}}
+{{alert.fingerprint}} {{alert.annotations.title}} {{alert.startsAt}}  {{alert.annotations.summary}}
 {% endfor %}
