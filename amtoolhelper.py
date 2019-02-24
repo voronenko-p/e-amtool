@@ -104,6 +104,14 @@ class AmtoolHelper(object):
             print("Exception when calling silence_api->get_silence: %s\n" % e)
             raise
 
+    def delete_silence(self, silence_id):
+        try:
+            api_response = self.silence_api.delete_silence(silence_id)
+            return api_response
+        except ApiException as e:
+            print("Exception when calling silence_api->delete_silence(: %s\n" % e)
+            raise
+
     def post_silence(self, matchers=None, starts_at=None, ends_at=None,
         created_by=None, comment=None):
         try:
