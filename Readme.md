@@ -175,6 +175,53 @@ No output represents successful command execution.
 If you see an error, make sure you provided the correct ID of the silence.
 
 
+## Brief for alerts !amtool alerts
+
+This is alternative template , that returns more information about every alert.
+Details level: high
+
+```md
+
+For *active* True, *silenced* True, *inhibited* True, *unprocessed* True, *filter* [], *receiver*
+Found *3* alerts.
+
+*Alert Firing:*
+Less than 10% disk space left;; *4.307%*
+
+Consider sshing into the instance and removing old logs, clean
+temp files, or remove old apt packages with `apt-get autoremove`
+
+*Details:*
+*alertname:* `LowDiskSpace`  *device:* `/dev/xvda1`  *env:* `sim`  *fstype:* `ext4`  *instance:* `i-028ae8bf36be2e188`  *job:* `node`  *monitor:* `master`  *mountpoint:* `/`  *name:* `SIM host`    *severity:* `warn`
+State `active`, inhibited by `[]`, silenced by []
+Started `2019-02-20T11:24:34.521Z` , updated  `2019-02-24T21:20:19.524Z`
+_!amtool suppress af2442fa7f7ee655_
+
+```
+
 ## Brief for alerts !amtool brief
 
-## Detailed alert list !amtool alerts
+This is alternative template ,  with full list of currently active alerts with moderate details level
+
+![!amtool brief](docs/amtool_brief.jpg "!amtool brief")
+
+
+Contributing
+------------
+
+Contributions to this plugin are always welcome and highly encouraged.
+
+License
+-------
+
+MIT - See LICENSE for more information.
+
+
+Interested in other plugins or roles ?
+--------------------------------------
+
+Subscribe for roles updates at [FB] (https://www.facebook.com/SoftAsap/)
+
+Join gitter discussion channel at [Gitter](https://gitter.im/softasap)
+
+Discover other roles at  http://www.softasap.com/roles/registry_generated.html
