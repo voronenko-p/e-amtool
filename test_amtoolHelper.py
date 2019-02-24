@@ -16,6 +16,12 @@ class TestAmtoolHelper(TestCase):
         alerts = amtoolhelper.get_alerts()
         self.assertIsNotNone(alerts)
 
+    def test_get_alerts_with_filter(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        filter = amtoolhelper.get_filters_by_terms(["env=live"])
+        alerts = amtoolhelper.get_alerts(filter=filter)
+        self.assertIsNotNone(alerts)
+
     def test_get_alert(self):
         amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
         alert = amtoolhelper.get_alert('af2442fa7f7ee655')

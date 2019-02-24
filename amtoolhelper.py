@@ -195,5 +195,5 @@ class AmtoolHelper(object):
             else:
                 name = elements[0]
                 value = elements[1]
-            matchers.append((name, value))
+            matchers.append("{0}={1}".format(name,value))
         return matchers
