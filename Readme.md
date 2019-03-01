@@ -175,6 +175,11 @@ No output represents successful command execution.
 If you see an error, make sure you provided the correct ID of the silence.
 
 
+## Dirty alert supressing !amtool suppress <fingerprint>
+
+
+
+
 ## Brief for alerts !amtool alerts
 
 This is alternative template , that returns more information about every alert.

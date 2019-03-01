@@ -137,7 +137,7 @@ class AmtoolHelper(object):
 
     @staticmethod
     def get_matchers_by_alert(alert, ignore_terms=["severity", "monitor"],
-        include_terms=None):
+        include_terms=[]):
         matchers = []
         for name, value in alert["labels"].items():
             if name in ignore_terms:

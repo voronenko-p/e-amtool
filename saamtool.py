@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+
+import pytz
 from errbot import arg_botcmd, botcmd, BotPlugin
 from amtoolhelper import AmtoolHelper
 import parsedatetime as pdt  # $ pip install parsedatetime
@@ -87,29 +89,41 @@ class SaAmtool(BotPlugin):
     @arg_botcmd('--days', type=int, default=0)
     @arg_botcmd('--hours', type=int, default=0)
     @arg_botcmd('--minutes', type=int, default=0)
-    @arg_botcmd('fingerprint', type=str, template='amtool_silence_add')
-    def amtool_suppress(self, mess, fingerprint, weeks, days, hours, minutes):
+    @arg_botcmd('--author', type=str, default="errbot")
+    @arg_botcmd('--comment', type=str, default="")
+    @arg_botcmd('fingerprint', type=str)
+    @arg_botcmd('matchers', type=str, metavar='matchers', nargs='+',
+                template='amtool_silence_add')
+
+    def amtool_suppress(self, mess, fingerprint, author="errbot", comment="", weeks=0, days=0, hours=0, minutes=0, matchers=[]):
         """Puts exact suppress match on alert"""
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
 
-        start_period = datetime.now().utcnow()
+        start_period = datetime.now(pytz.timezone(self.config['time_zone']))
         end_period = start_period + timedelta(minutes=minutes, hours=hours,
                                               days=days, weeks=weeks)
 
         alert = helper.get_alert(fingerprint)
-        matchers = helper.get_matchers_by_alert(alert)
+        matchers = helper.get_matchers_by_alert(alert, matchers)
 
         result = helper.post_silence(
             matchers=matchers,
             starts_at=start_period.isoformat(),
             ends_at=end_period.isoformat(),
-            created_by="errbot",
-            comment="errbot"
+            created_by=author,
+            comment=comment
         )
-        return result
 
-        # Amtool compability aliases
+        self.send_card(title="Alert suppressed until {0}".format(end_period),
+                       body=result,
+                       #                       thumbnail='https://raw.githubusercontent.com/errbotio/errbot/master/docs/_static/errbot.png',
+                       #                       image='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                       # link=result["generatorURL"],
+                       fields=matchers.items(),
+                       color='blue',
+                       in_reply_to=mess)
+
 
     @arg_botcmd('--inhibited', dest='inhibited', type=bool, default=True)
     @arg_botcmd('--silenced', dest='silenced', type=bool, default=True)
@@ -229,7 +243,7 @@ class SaAmtool(BotPlugin):
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
         result = helper.delete_silence(silence_id)
-        return result
+        return "Silence deleted"
 
     @arg_botcmd('--expired', type=bool, default=None)
     @arg_botcmd('--within', type=str, default=None)
