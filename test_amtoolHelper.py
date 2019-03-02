@@ -109,3 +109,8 @@ class TestAmtoolHelper(TestCase):
             comment="test silence"
         )
         self.assertIsNotNone(silence)
+
+    def test_post_silence_selective(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        parsed_matchers = amtoolhelper.get_matchers_by_terms(["instance=222"])
+        tuples = amtoolhelper.convert_matchers_to_tuples(parsed_matchers)

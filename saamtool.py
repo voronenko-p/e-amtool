@@ -228,6 +228,7 @@ class SaAmtool(BotPlugin):
 
         parsed_matchers = helper.get_matchers_by_terms(matchers)
         self.log.info("Suppressing {0}->{1}".format(start_period, end_period))
+        self.log.info("Matchers {0}".format(parsed_matchers))
         result = helper.post_silence(
             matchers=parsed_matchers,
             starts_at=start_period.isoformat(),
@@ -235,13 +236,13 @@ class SaAmtool(BotPlugin):
             created_by=author,
             comment=comment
         )
-
+        self.log.info("Added {0}".format(result))
         self.send_card(title="Silence added until {0}".format(end_period),
                     body="Alert created by {0} with description '{1}'. To cancel  !amtool silence expire {2}".format(author, comment, result.silence_id),
                     #                       thumbnail='https://raw.githubusercontent.com/errbotio/errbot/master/docs/_static/errbot.png',
                     #                       image='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
                     # link=result["generatorURL"],
-                    fields=helper.convert_matchers_to_tuples(matchers),
+                    fields=helper.convert_matchers_to_tuples(parsed_matchers),
                     color='blue',
                     in_reply_to=mess)
 
@@ -307,6 +308,7 @@ returns all silences that expired within the preceeding 2 hours.
         """
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
-        filters = helper.get_matchers_by_terms(matchers)
+        filters = helper.get_filters_by_terms(matchers)
+        self.log.info("Expired {0} within {1} filtered {2}".format(expired, within, filters))
         result = helper.get_silences(filter=filters, expired=expired, within=within)
         return {"silences": result}
