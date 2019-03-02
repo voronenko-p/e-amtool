@@ -29,7 +29,17 @@ class TestAmtoolHelper(TestCase):
 
     def test_get_silences(self):
         amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
-        silences = amtoolhelper.get_silences()
+        silences = amtoolhelper.get_silences(filter=[])
+        self.assertIsNotNone(silences)
+
+    def test_expired_silences(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        silences = amtoolhelper.get_silences(filter=[], expired=True)
+        self.assertIsNotNone(silences)
+
+    def test_expired_within_silences(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        silences = amtoolhelper.get_silences(filter=[], expired=True, within="1h")
         self.assertIsNotNone(silences)
 
     def test_get_silence(self):

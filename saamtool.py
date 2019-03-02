@@ -91,7 +91,7 @@ class SaAmtool(BotPlugin):
     @arg_botcmd('--minutes', type=int, default=0)
     @arg_botcmd('--author', type=str, default="errbot")
     @arg_botcmd('--comment', type=str, default="")
-    @arg_botcmd('criteria', type=str, metavar='matchers', nargs='+', default=[])
+    @arg_botcmd('criteria', type=str, metavar='criteria', nargs='+', default=[])
     def amtool_suppress(self, mess, author="errbot", comment="", weeks=0, days=0, hours=0, minutes=0, criteria=[]):
         """Puts exact suppress match on alert"""
         helper = AmtoolHelper(
@@ -255,7 +255,7 @@ class SaAmtool(BotPlugin):
         return "Silence deleted"
 
     @arg_botcmd('--expired', action='store_true')
-    @arg_botcmd('--within', type=str, default=None)
+    @arg_botcmd('--within', type=str, default="")
     @arg_botcmd('matchers', type=str, metavar='matchers', nargs='+',
                 template="amtool_silence_query")
     def amtool_silence_query(self, mess, expired=None, within=None, matchers=[]):
@@ -301,5 +301,5 @@ returns all silences that expired within the preceeding 2 hours.
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
         filters = helper.get_matchers_by_terms(matchers)
-        result = helper.get_silences(filter=filters)
+        result = helper.get_silences(filter=filters, expired=expired, within=within)
         return {"silences": result}

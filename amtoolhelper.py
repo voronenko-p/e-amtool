@@ -1,6 +1,11 @@
 from __future__ import print_function
+
+import datetime
 import re
+from datetime import date
+
 import swagger_client
+import parsedatetime as pdt
 from swagger_client import Configuration, ApiClient, api, PostableSilence
 from swagger_client.rest import ApiException
 
@@ -85,10 +90,36 @@ class AmtoolHelper(object):
                 return alert
         return None
 
-    def get_silences(self, filter=[]):
+    # --expired        Show expired silences instead of active
+    # --within=WITHIN  Show silences that will expire or have expired within a duration
+
+    def get_silences(self, filter=[], expired=False, within=""):
         try:
+            acceptable_states = ["active", "pending"]
+            if expired:
+                acceptable_states = ["expired"]
+
+            if within != "":
+                cal = pdt.Calendar()
+                diff = cal.parseDT(within, sourceTime=datetime.min)[
+                           0] - datetime.min
+                if expired:
+                    end_period = datetime.now().utcnow() - diff
+                else:
+                    end_period = datetime.now().utcnow() + diff
+            else:
+                end_period = datetime.max
+
             api_response = self.silence_api.get_silences(filter=filter)
-            return api_response
+            silences = [silence for silence in api_response
+                        if silence["status"]["state"] in acceptable_states
+                        if within == "" or (
+                                expired and datetime.strptime(silence["endsAt"],
+                                                              '%Y-%m-%dT%H:%M:%SZ') > end_period) or (
+                                not expired and datetime.strptime(
+                                silence["endsAt"],
+                                '%Y-%m-%dT%H:%M:%SZ') < end_period)]
+            return silences
         except ApiException as e:
             print("Exception when calling silence_api->get_silences: %s\n" % e)
             raise
@@ -204,5 +235,5 @@ class AmtoolHelper(object):
             else:
                 name = elements[0]
                 value = elements[1]
-            matchers.append("{0}={1}".format(name,value))
+            matchers.append("{0}={1}".format(name, value))
         return matchers
