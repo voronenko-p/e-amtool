@@ -1,13 +1,14 @@
 from __future__ import print_function
-
-import datetime
 import re
-from datetime import date
-
+from datetime import datetime, timedelta
 import swagger_client
+import dateparser
 import parsedatetime as pdt
 from swagger_client import Configuration, ApiClient, api, PostableSilence
 from swagger_client.rest import ApiException
+import pytz
+
+utc = pytz.UTC
 
 
 class AmtoolHelper(object):
@@ -104,9 +105,9 @@ class AmtoolHelper(object):
                 diff = cal.parseDT(within, sourceTime=datetime.min)[
                            0] - datetime.min
                 if expired:
-                    end_period = datetime.now().utcnow() - diff
+                    end_period = utc.localize(datetime.now().utcnow() - diff)
                 else:
-                    end_period = datetime.now().utcnow() + diff
+                    end_period = utc.localize(datetime.now().utcnow() + diff)
             else:
                 end_period = datetime.max
 
@@ -114,11 +115,10 @@ class AmtoolHelper(object):
             silences = [silence for silence in api_response
                         if silence["status"]["state"] in acceptable_states
                         if within == "" or (
-                                expired and datetime.strptime(silence["endsAt"],
-                                                              '%Y-%m-%dT%H:%M:%SZ') > end_period) or (
-                                not expired and datetime.strptime(
-                                silence["endsAt"],
-                                '%Y-%m-%dT%H:%M:%SZ') < end_period)]
+                            expired and dateparser.parse(
+                            silence["endsAt"]) > end_period) or (
+                            not expired and dateparser.parse(
+                            silence["endsAt"]) < end_period)]
             return silences
         except ApiException as e:
             print("Exception when calling silence_api->get_silences: %s\n" % e)

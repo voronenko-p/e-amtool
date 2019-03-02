@@ -103,7 +103,8 @@ class SaAmtool(BotPlugin):
         end_period = start_period + timedelta(minutes=minutes, hours=hours,
                                               days=days, weeks=weeks)
         self.log.info("Suppressing {0}->{1}".format(start_period, end_period))
-        fingerprint = criteria[0]
+        fingerprint = criteria.pop(0)
+        self.log.info("Getting alert by fingerprint {0}".format(fingerprint))
         alert = helper.get_alert(fingerprint)
         matchers = helper.get_matchers_by_alert(alert, include_terms=criteria)
         self.log.info("Matchers {0}".format(matchers))
