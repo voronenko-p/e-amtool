@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+import dateparser
 import pytz
 from errbot import arg_botcmd, botcmd, BotPlugin
 from amtoolhelper import AmtoolHelper
@@ -209,17 +209,23 @@ class SaAmtool(BotPlugin):
         helper = AmtoolHelper(
             alertmanager_address=self.config['server_address'])
         if start is not None:
-            start_period = datetime.strptime(start, '%Y-%m-%dT%H:%M:%SZ')
+            start_period = dateparser.parse(start)
         else:
             start_period = datetime.now().utcnow()
 
         if end is not None:
-            end_period = datetime.strptime(end, '%Y-%m-%dT%H:%M:%SZ')
+            end_period = dateparser.parse(end)
         else:
             cal = pdt.Calendar()
             diff = cal.parseDT(duration, sourceTime=datetime.min)[
                        0] - datetime.min
             end_period = start_period + diff
+
+        utc = pytz.UTC
+
+        start_period = utc.localize(start_period)
+        end_period = utc.localize(end_period)
+
         parsed_matchers = helper.get_matchers_by_terms(matchers)
         self.log.info("Suppressing {0}->{1}".format(start_period, end_period))
         result = helper.post_silence(

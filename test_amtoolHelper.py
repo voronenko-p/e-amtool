@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import pytz
 from unittest import TestCase
 from amtoolhelper import AmtoolHelper
+import parsedatetime as pdt  # $ pip install parsedatetime
 
 ALERTMANAGER_HOST = "http://10.9.0.138:9093/api/v2"
 
@@ -66,6 +67,29 @@ class TestAmtoolHelper(TestCase):
             ends_at=end_period.isoformat(),
             created_by="Someone",
             comment="test silence"
+        )
+        self.assertIsNotNone(silence)
+
+    def test_post_silence_add(self):
+        amtoolhelper = AmtoolHelper(alertmanager_address=ALERTMANAGER_HOST)
+        start_period = datetime.now().utcnow()
+
+        cal = pdt.Calendar()
+        diff = cal.parseDT("1h", sourceTime=datetime.min)[
+                       0] - datetime.min
+        end_period = start_period + diff
+
+        utc = pytz.UTC
+        start_period = utc.localize(start_period)
+        end_period = utc.localize(end_period)
+
+        parsed_matchers = amtoolhelper.get_matchers_by_terms(["instance=i-049a6b9bbbb6fb76b"])
+        silence = amtoolhelper.post_silence(
+            matchers=parsed_matchers,
+            starts_at=start_period.isoformat(),
+            ends_at=end_period.isoformat(),
+            created_by="errbot",
+            comment="test comment"
         )
         self.assertIsNotNone(silence)
 
